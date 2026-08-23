@@ -1,6 +1,12 @@
 import { createClient } from "@/src/lib/supabase/server";
+import { DEMO_PRINCIPAL, demoModeEnabled } from "@/src/lib/demo-mode";
 
 export async function requireDashboardPrincipal(allowedRoles?: string[]) {
+  if (demoModeEnabled()) {
+    if (allowedRoles && !allowedRoles.includes(DEMO_PRINCIPAL.role)) throw new Error("FORBIDDEN");
+    return DEMO_PRINCIPAL;
+  }
+
   const db=await createClient();
   const {data:claims,error:claimsError}=await db.auth.getClaims();
   const userId=typeof claims?.claims?.sub==="string"?claims.claims.sub:"";
