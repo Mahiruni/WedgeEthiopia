@@ -1,0 +1,33 @@
+{
+  "name": "wedge-ethiopia",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=22.0.0"
+  },
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "typecheck": "tsc --noEmit",
+    "domain:check": "rm -rf .domain-build && tsc -p tsconfig.domain.json && node scripts/domain-smoke.mjs",
+    "verify": "npm run domain:check"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "2.112.3",
+    "next": "15.5.23",
+    "react": "19.2.8",
+    "react-dom": "19.2.8",
+    "@supabase/ssr": "0.12.4",
+    "jose": "6.2.10"
+  },
+  "devDependencies": {
+    "@tailwindcss/postcss": "4.3.3",
+    "@types/node": "22.15.30",
+    "@types/react": "19.2.18",
+    "@types/react-dom": "19.2.4",
+    "tailwindcss": "4.3.3",
+    "typescript": "5.8.3"
+  }
+}

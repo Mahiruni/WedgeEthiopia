@@ -1,0 +1,3 @@
+export const dynamic = "force-dynamic";
+import { getAuditUiData } from "@/src/lib/ui-data";
+export default async function AuditPage(){const {rows,mode}=await getAuditUiData();return <><div style={{marginBottom:22}}><h1 className="page-title">Audit log</h1><div className="page-sub">Append-only tenant event chain. {mode==="demo"?"Synthetic preview.":"Live RLS view."}</div></div><div className="table-wrap"><table><thead><tr><th>Seq</th><th>Action</th><th>Object</th><th>Actor</th><th>Time</th><th>Hash</th></tr></thead><tbody>{rows.map(x=><tr key={x.seq}><td>{x.seq}</td><td>{x.action}</td><td className="code">{x.object}</td><td>{x.actor}</td><td>{x.at}</td><td className="code">{x.hash}</td></tr>)}</tbody></table></div></>}
