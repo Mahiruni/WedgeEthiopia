@@ -1,9 +1,16 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import "./marketing.css";
 
 export const metadata: Metadata = {
-  title: "Wedge Ethiopia",
-  description: "Multi-tenant fiscal invoice compliance infrastructure for Ethiopian businesses",
+  title: { default: "Wedge Ethiopia — Fiscal infrastructure for business systems", template: "%s · Wedge Ethiopia" },
+  description: "A controlled fiscal invoicing layer for Ethiopian ERP vendors and finance teams: validation, clearance orchestration, signed events, reconciliation, ledger, and audit evidence.",
+  metadataBase: new URL("https://ethiopiafiscal.vercel.app"),
+  openGraph: {
+    title: "Wedge Ethiopia — Make every invoice explainable",
+    description: "Fiscal invoice infrastructure for Ethiopian business systems.",
+    type: "website",
+  },
 };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {

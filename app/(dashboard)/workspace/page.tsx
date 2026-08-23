@@ -4,11 +4,11 @@ import { formatMinor } from "@/src/domain/money";
 import { StatusBadge } from "@/components/badge";
 import { getInvoiceUiData } from "@/src/lib/ui-data";
 
-export default async function DashboardPage() {
+export default async function WorkspacePage() {
   const { mode, invoices, metrics } = await getInvoiceUiData();
   return <>
     <div className="row" style={{marginBottom:22,alignItems:"flex-end"}}><div><h1 className="page-title">Operations</h1><div className="page-sub">Fiscal clearance, tenant activity, and reconciliation health.</div></div><Link className="btn btn-primary" href="/invoices/new">Create invoice</Link></div>
-    {mode === "demo" ? <div className="callout" style={{marginBottom:16}}><strong>Demo mode:</strong> synthetic data is shown until Supabase browser credentials and a tenant membership are configured.</div> : null}
+    {mode === "demo" ? <div className="callout" style={{marginBottom:16}}><strong>Demo mode:</strong> synthetic data is shown while production identity and data services remain disconnected.</div> : null}
     <section className="grid-4">
       <div className="card"><div className="metric-label">Tenant scope</div><div className="metric-value">{metrics.businesses}</div><div className="metric-sub">business entity context</div></div>
       <div className="card"><div className="metric-label">Accepted · 24h</div><div className="metric-value">{metrics.acceptedToday.toLocaleString()}</div><div className="metric-sub">authority acknowledgements</div></div>
