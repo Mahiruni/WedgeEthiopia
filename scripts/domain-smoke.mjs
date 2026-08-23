@@ -1,7 +1,10 @@
 import assert from "node:assert/strict";
-import { canTransition, assertTransition, isFiscalFinal } from "../.domain-build/invoice-state.js";
-import { assertBalanced } from "../.domain-build/ledger.js";
-import { calculateInvoice } from "../.domain-build/invoice.js";
+import { createRequire } from "node:module";
+
+const require = createRequire(import.meta.url);
+const { canTransition, assertTransition, isFiscalFinal } = require("../.domain-build/invoice-state.js");
+const { assertBalanced } = require("../.domain-build/ledger.js");
+const { calculateInvoice } = require("../.domain-build/invoice.js");
 
 assert.equal(canTransition("draft", "validated"), true);
 assert.equal(canTransition("accepted", "draft"), false);

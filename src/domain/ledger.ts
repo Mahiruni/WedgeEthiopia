@@ -1,4 +1,4 @@
-import { assertMinorUnits } from "./money.js";
+import { assertMinorUnits } from "./money";
 
 export type JournalLine = {
   accountCode: string;

@@ -4,14 +4,17 @@
   "private": true,
   "type": "module",
   "engines": {
-    "node": ">=22.0.0"
+    "node": "22.x"
+  },
+  "allowScripts": {
+    "sharp@0.34.5": true
   },
   "scripts": {
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
     "typecheck": "tsc --noEmit",
-    "domain:check": "rm -rf .domain-build && tsc -p tsconfig.domain.json && node scripts/domain-smoke.mjs",
+    "domain:check": "rm -rf .domain-build && tsc -p tsconfig.domain.json && printf '{\"type\":\"commonjs\"}\\n' > .domain-build/package.json && node scripts/domain-smoke.mjs",
     "verify": "npm run domain:check"
   },
   "dependencies": {

@@ -1,4 +1,4 @@
-import { addMinor, assertMinorUnits } from "./money.js";
+import { addMinor, assertMinorUnits } from "./money";
 
 export type InvoiceLineInput = {
   description: string;
