@@ -1,12 +1,14 @@
 import { createClient } from "@/src/lib/supabase/server";
 import { demoAudit, demoInvoices, demoMetrics } from "@/src/lib/demo";
+import { demoModeEnabled } from "@/src/lib/demo-mode";
 
 export type UiInvoice = { id: string; sourceRef: string; counterparty: string; totalMinor: number; status: string; issuedAt: string };
 
-function demoAllowed() { return process.env.ALLOW_DEMO_MODE === "true"; }
 function configured() { return Boolean(process.env.NEXT_PUBLIC_SUPABASE_URL && process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY); }
 
 async function tenantContext() {
+  // In temporary demo mode we intentionally avoid Supabase entirely.
+  if (demoModeEnabled()) return null;
   if (!configured()) return null;
   const db = await createClient();
   const { data, error } = await db.from("tenant_members").select("tenant_id,role,tenants(legal_name)").eq("status", "active").limit(1).maybeSingle();
@@ -18,7 +20,7 @@ async function tenantContext() {
 export async function getInvoiceUiData() {
   const ctx = await tenantContext();
   if (!ctx) {
-    if (!demoAllowed()) throw new Error("UI_SUPABASE_NOT_CONFIGURED");
+    if (!demoModeEnabled()) throw new Error("UI_SUPABASE_NOT_CONFIGURED");
     return { mode: "demo" as const, invoices: demoInvoices, metrics: demoMetrics };
   }
   const since = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
@@ -45,7 +47,7 @@ export async function getInvoiceUiData() {
 
 export async function getAuditUiData() {
   const ctx = await tenantContext();
-  if (!ctx) return demoAllowed() ? { mode:"demo" as const, rows: demoAudit } : { mode:"demo" as const, rows: [] };
+  if (!ctx) return demoModeEnabled() ? { mode:"demo" as const, rows: demoAudit } : { mode:"demo" as const, rows: [] };
   const { data, error } = await ctx.db.from("audit_events").select("seq,action,object_id,actor_type,occurred_at,event_hash").eq("tenant_id",ctx.tenantId).order("seq",{ascending:false}).limit(100);
   if (error) throw error;
   return { mode:"live" as const, rows:(data??[]).map((r:any)=>({seq:Number(r.seq),action:String(r.action),object:String(r.object_id),actor:String(r.actor_type),at:String(r.occurred_at),hash:String(r.event_hash)})) };
@@ -54,7 +56,7 @@ export async function getAuditUiData() {
 export async function getLegalEntitiesUiData() {
   const ctx=await tenantContext();
   if(!ctx){
-    if(!demoAllowed()) throw new Error("UI_SUPABASE_NOT_CONFIGURED");
+    if(!demoModeEnabled()) throw new Error("UI_SUPABASE_NOT_CONFIGURED");
     return {mode:"demo" as const, entities:[{id:"00000000-0000-0000-0000-000000000101",legalName:"Demo Trading PLC",tin:"DEMO-TIN-001"}]};
   }
   const {data,error}=await ctx.db.from("legal_entities").select("id,legal_name,tin").eq("tenant_id",ctx.tenantId).eq("status","active").order("legal_name");
