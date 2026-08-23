@@ -1,0 +1,59 @@
+name: Bootstrap verified Wedge Ethiopia source
+
+on:
+  push:
+    branches: [main]
+
+permissions:
+  contents: write
+
+jobs:
+  expand-verify-commit:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:17
+        env:
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: fiscal_rail_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    env:
+      ALLOW_DEMO_MODE: "true"
+      PGPASSWORD: postgres
+    steps:
+      - uses: actions/checkout@v4
+      - name: Expand source bundle
+        run: tar -xzf .bootstrap/wedge-source.tar.gz -C .
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Install pinned dependencies and generate lockfile
+        run: npm install --ignore-scripts --no-audit --no-fund
+      - name: Verify deterministic domain rules
+        run: npm run domain:check
+      - name: Typecheck
+        run: npm run typecheck
+      - name: Build Next.js
+        run: npm run build
+      - name: Bootstrap PostgreSQL test roles
+        run: psql -h localhost -U postgres -d fiscal_rail_test -v ON_ERROR_STOP=1 -f supabase/test-bootstrap.sql
+      - name: Apply schema
+        run: psql -h localhost -U postgres -d fiscal_rail_test -v ON_ERROR_STOP=1 -f supabase/schema.sql
+      - name: Run database security tests
+        run: psql -h localhost -U postgres -d fiscal_rail_test -v ON_ERROR_STOP=1 -f supabase/test.sql
+      - name: Replace bootstrap bundle with verified source
+        run: |
+          rm -rf .bootstrap
+          rm -f .github/workflows/bootstrap.yml
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git diff --cached --quiet && exit 0
+          git commit -m "feat: ship Wedge Ethiopia fiscal rail V1"
+          git push origin HEAD:main
